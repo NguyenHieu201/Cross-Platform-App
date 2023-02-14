@@ -1,17 +1,24 @@
+import { io } from "socket.io-client";
+
 const initialState = {
   token: "",
   isLogin: false,
   posts: [],
+  socket: null,
 };
 
 const reducers = (state = initialState, action) => {
   switch (action.type) {
     case "LOGIN":
       console.log("Login");
+      const socket = io("http://192.168.1.23:3000", {
+        extraHeaders: { token: `${action.payload.token}` },
+      });
       return {
         ...state,
         token: action.payload.token,
         isLogin: true,
+        socket: socket,
       };
 
     case "GETLISTPOST":

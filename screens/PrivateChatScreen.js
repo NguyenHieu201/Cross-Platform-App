@@ -9,7 +9,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet } from "react-native";
 import { Image } from "react-native";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLayoutEffect } from "react";
 import { getAllChatWithFriendId } from "../api/chatApi";
 import { useSelector } from "react-redux";
@@ -43,13 +43,33 @@ const Header = ({ navigation, friend }) => {
   );
 };
 
-const SingleMessage = ({ message }) => {
+const SingleMessage = React.memo(({ message, isFriend }) => {
   return (
-    <View>
-      <Text>{message.content}</Text>
+    <View
+      style={{
+        marginTop: 10,
+        alignItems: "center",
+        flexDirection: "row",
+        width: "100%",
+      }}
+    >
+      {!isFriend && <Text style={{ flex: 1 }}></Text>}
+      {isFriend && <UserAvatar />}
+      <Text
+        style={{
+          borderWidth: 1,
+          borderColor: "black",
+          fontSize: 16,
+          borderRadius: 15,
+          padding: 5,
+          maxWidth: "50%",
+        }}
+      >
+        {message.content}
+      </Text>
     </View>
   );
-};
+});
 
 const InputMessage = ({ handleSendMessage }) => {
   const [message, setMessage] = useState("");
@@ -66,20 +86,29 @@ const InputMessage = ({ handleSendMessage }) => {
   );
 };
 
-const UserAvatar = ({ userImage }) => {};
+const UserAvatar = ({ userImage }) => {
+  const imageSource = require("../assets/user.png");
+  return (
+    <Image
+      source={imageSource}
+      style={{
+        height: 30,
+        width: 30,
+      }}
+    />
+  );
+};
 
 const PrivateChatScreen = ({ navigation, route }) => {
   const [chats, setChats] = useState([]);
   const room = route.params.room;
   const friendId = room?.friend._id;
   const token = useSelector((store) => store?.token);
-  const socket = io("http://192.168.1.23:3000", {
-    extraHeaders: { token: `${token}` },
-  });
+  const socket = useSelector((store) => store?.socket);
 
   useEffect(() => {
     socket.on("message", (msg) => {
-      setChats([...chats, msg]);
+      setChats((previousChats) => [msg, ...previousChats]);
     });
   }, []);
 
@@ -97,12 +126,12 @@ const PrivateChatScreen = ({ navigation, route }) => {
       friendId: friendId,
     }).then((res) => {
       if (res.isSuccess) {
-        setChats(res.data);
+        setChats(res.data.reverse());
       } else {
         console.log("Fetch chat for room error");
       }
     });
-  });
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -110,12 +139,19 @@ const PrivateChatScreen = ({ navigation, route }) => {
 
       <View style={{ flex: 1 }}>
         <FlatList
+          inverted={true}
           data={chats}
           key={(item) => {
             item.index;
           }}
           renderItem={(item) => {
-            return <SingleMessage message={item.item} />;
+            return (
+              <SingleMessage
+                message={item.item}
+                isFriend={item.item.senderId == friendId}
+                index={item.index}
+              />
+            );
           }}
         />
       </View>
