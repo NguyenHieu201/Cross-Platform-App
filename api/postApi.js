@@ -118,3 +118,54 @@ export const likeAPI = async ({ token, postID }) => {
       });
   });
 };
+
+export const getUserPostAPI = async ({ token, userId }) => {
+  const url = `${base_url}/posts/list?userId=${userId}`;
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+  // const params = {
+  //   userId: userId,
+  // };
+  return new Promise(async (resolve) => {
+    await axios
+      .get(url, config)
+      .then((res) => {
+        // console.log(res.data);
+        return resolve({
+          isSuccess: true,
+          posts: res.data.data,
+        });
+      })
+      .catch((err) => {
+        console.log(err.response);
+        return resolve({
+          isSuccess: false,
+        });
+      });
+  });
+};
+
+export const editPostAPI = async ({ token, postId, body }) => {
+  const url = `${base_url}/posts/edit/${postId}`;
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+  const data = body;
+  return new Promise(async (resolve) => {
+    await axios
+      .post(url, data, config)
+      .then((res) => {
+        console.log(res.data);
+        return resolve({
+          isSuccess: true,
+        });
+      })
+      .catch((err) => {
+        console.log(err.response);
+        return resolve({
+          isSuccess: false,
+        });
+      });
+  });
+};

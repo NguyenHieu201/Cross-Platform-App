@@ -37,9 +37,34 @@ export const getAllChatWithFriendId = async ({ token, friendId }) => {
     await axios
       .get(url, config)
       .then((res) => {
+        // console.log(res.data);
         return resolve({
           isSuccess: true,
           data: res.data.data,
+          chatId: res.data.chatId,
+        });
+      })
+      .catch((err) => {
+        console.log(err.response);
+        return resolve({
+          isSuccess: false,
+        });
+      });
+  });
+};
+
+export const getAllMessageWithChatId = async ({ token, chatId }) => {
+  const url = `${base_url}/chats/getMessages/${chatId}`;
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+  return new Promise(async (resolve) => {
+    await axios
+      .get(url, config)
+      .then((res) => {
+        console.log(res.data);
+        return resolve({
+          isSuccess: true,
         });
       })
       .catch((err) => {

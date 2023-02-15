@@ -5,6 +5,7 @@ const initialState = {
   isLogin: false,
   posts: [],
   socket: null,
+  id: "",
 };
 
 const reducers = (state = initialState, action) => {
@@ -19,6 +20,7 @@ const reducers = (state = initialState, action) => {
         token: action.payload.token,
         isLogin: true,
         socket: socket,
+        id: action.payload.id,
       };
 
     case "GETLISTPOST":

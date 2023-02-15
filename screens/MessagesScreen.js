@@ -15,6 +15,7 @@ const MessagesScreen = ({ navigation }) => {
   useEffect(() => {
     getChatApi({ token: token }).then((res) => {
       console.log("Fetch all chat");
+      // console.log(res.data);
       if (res.isSuccess) setRooms(res.data);
       else {
         console.log("Fetch chat error");

@@ -1,0 +1,276 @@
+import React, { useState } from "react";
+import {
+  View,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TextInput,
+} from "react-native";
+import { Icon } from "react-native-elements";
+import { SafeAreaView } from "react-native-safe-area-context";
+import * as ImagePicker from "expo-image-picker";
+import { useSelector } from "react-redux";
+import { createPostAPI, editPostAPI } from "../api/postApi";
+import { convertBase64 } from "../utils/convertBase64";
+import { fileApi } from "../api/fileApi";
+
+const EditPostScreen = ({ navigation, route }) => {
+  const post = route.params.post;
+  const [pics, setPics] = useState(post?.images);
+  const [content, setContent] = useState(post?.described);
+  const [create, setCreate] = useState(true);
+  const avatar = post.author.avatar;
+
+  const token = useSelector((store) => store?.token);
+  const addPic = (pic) => {
+    setPics([...pics, pic]);
+  };
+  const createNewPost = async () => {
+    const images = [];
+    for (let i = 0; i < pics.length; i++) {
+      let imageBase64 = await convertBase64(pics[i]);
+      images.push(imageBase64);
+    }
+
+    const data = {
+      token: token,
+      body: { described: content, images: images },
+      postId: post._id,
+    };
+
+    if (create)
+      await editPostAPI(data).then((res) => {
+        if (res.isSuccess) {
+          console.log("Post successfully");
+          navigation.goBack();
+        } else {
+          console.log("Post not success");
+        }
+      });
+    else {
+      console.log("Please make a content to create");
+    }
+  };
+
+  const chooseImageFromCamera = async () => {
+    // No permissions request is necessary for launching the image library
+    await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      aspect: [4, 3],
+      quality: 1,
+      base64: true,
+    }).then((result) => {
+      if (!result.canceled) {
+        addPic(result?.assets[0]);
+        console.log("Take photo from camera");
+      } else {
+        console.log("Not take photo");
+      }
+    });
+  };
+
+  const chooseImageFromGallery = async () => {
+    await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      aspect: [4, 3],
+      quality: 1,
+      allowsMultipleSelection: true,
+      selectionLimit: 4,
+      base64: true,
+    }).then((result) => {
+      if (!result.canceled) {
+        // addPic(result?.assets[0]);
+        setPics(result?.assets);
+        console.log("Take photo from gallery");
+      } else {
+        console.log("Not take photo");
+      }
+    });
+  };
+
+  const cancel = () => {
+    navigation.goBack();
+  };
+
+  return (
+    <SafeAreaView>
+      <View
+        style={{
+          height: 50,
+          borderBottomWidth: 1,
+          borderBottomColor: "#eef",
+        }}
+      >
+        <View style={{ flexDirection: "row" }}>
+          <TouchableOpacity
+            style={{ marginLeft: 10, marginTop: 12 }}
+            onPress={cancel}
+          >
+            <Icon name="arrow-back" type="material" color="#333" />
+          </TouchableOpacity>
+          <Text
+            style={{
+              marginLeft: 10,
+              marginTop: 13,
+              fontSize: 20,
+              fontWeight: "500",
+              color: "#333",
+            }}
+          >
+            Add Post
+          </Text>
+          <View>
+            <TouchableOpacity onPress={createNewPost}>
+              {create ? (
+                <Text
+                  style={{
+                    marginTop: 15,
+                    marginLeft: 200,
+                    fontSize: 16,
+                    fontWeight: "500",
+                    textTransform: "uppercase",
+                    color: "black",
+                  }}
+                >
+                  OK
+                </Text>
+              ) : (
+                <Text
+                  style={{
+                    marginTop: 15,
+                    marginLeft: 200,
+                    fontSize: 16,
+                    fontWeight: "500",
+                    textTransform: "uppercase",
+                    color: "#aaa",
+                  }}
+                >
+                  OK
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+      <View style={{ flexDirection: "row", margin: 10 }}>
+        <View>
+          <Image
+            style={{ height: 50, width: 50, borderRadius: 100 }}
+            source={
+              avatar != null
+                ? { uri: fileApi({ filename: avatar.fileName }) }
+                : require("../assets/user.png")
+            }
+          ></Image>
+        </View>
+        <Text
+          style={{
+            fontWeight: "bold",
+            color: "#333",
+            fontSize: 16,
+            marginLeft: 10,
+          }}
+        >
+          User name
+        </Text>
+      </View>
+      <View style={{ marginTop: -40, marginLeft: 70, flexDirection: "row" }}>
+        <View
+          style={{
+            marginLeft: 5,
+            flexDirection: "row",
+          }}
+        >
+          <TouchableOpacity
+            style={styles.addImage}
+            onPress={chooseImageFromGallery}
+          >
+            <View
+              style={{
+                marginLeft: 4,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Icon name="plus" type="octicon" color="#333" size={16} />
+            </View>
+            <Text style={{ fontWeight: "500", paddingLeft: 3, paddingTop: 4 }}>
+              Photos
+            </Text>
+            <View style={{ marginLeft: -3 }}>
+              <Icon name="arrow-drop-down" type="material" color="#333" />
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.addImage}
+            onPress={chooseImageFromCamera}
+          >
+            <View
+              style={{
+                marginLeft: 4,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Icon name="plus" type="octicon" color="#333" size={16} />
+            </View>
+            <Text style={{ fontWeight: "500", paddingLeft: 3, paddingTop: 4 }}>
+              Camera
+            </Text>
+            <View style={{ marginLeft: -3 }}>
+              <Icon name="arrow-drop-down" type="material" color="#333" />
+            </View>
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View>
+        <TextInput
+          multiline={true}
+          numberOfLines={2}
+          placeholder="What do you think now?"
+          style={{ margin: 10, fontSize: 25 }}
+          value={content}
+          onChangeText={(post) => {
+            if (post.length > 0) {
+              setCreate(true);
+            } else {
+              setCreate(false);
+            }
+            setContent(post);
+          }}
+        />
+      </View>
+
+      {pics.length > 0 && (
+        <View style={{ marginBottom: 0, flexDirection: "row" }}>
+          {pics.map((pic, index) => {
+            return (
+              <Image
+                source={{ isStatic: true, uri: pic?.uri }}
+                style={{
+                  width: 50,
+                  height: 100,
+                  resizeMode: "cover",
+                }}
+                key={index}
+              />
+            );
+          })}
+        </View>
+      )}
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  addImage: {
+    flexDirection: "row",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 15,
+  },
+});
+
+export default EditPostScreen;

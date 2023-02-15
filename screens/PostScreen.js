@@ -1,33 +1,101 @@
 import { View, Text, Image, TextInput, Dimensions } from "react-native";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { StyleSheet } from "react-native";
-import Post from "../components/Home/Post";
 import { FlatList } from "react-native";
 import { fileApi } from "../api/fileApi";
 import { useSelector } from "react-redux";
 import { createCommentAPI, likeAPI } from "../api/postApi";
 import { FontAwesome } from "@expo/vector-icons";
-import { ScrollView } from "react-native";
-import { LogBox } from "react-native";
 import { memo } from "react";
 
-const PostDetail = ({ navigation, route }) => {
-  const [comments, setComments] = useState(route.params.comments.data);
-  const [isLike, setLike] = useState(post?.isLike);
-  const [countLike, setCountLike] = useState(post?.like.length);
-  const [like, setListLike] = useState(post?.like);
+const defaultAvatar = require("../assets/user.png");
+
+const SinglePostImg = ({ image }) => {
+  const [height, setHeight] = useState(0);
+  const imageUri = fileApi({ filename: image.fileName });
+  const deviceWidth = Dimensions.get("window").width;
+  Image.getSize(imageUri, (width, height) => {
+    const imageHeight = (deviceWidth / width) * height;
+    setHeight(imageHeight);
+  });
+  return (
+    <Image
+      source={{ uri: imageUri }}
+      style={{ height: height, resizeMode: "contain" }}
+    />
+  );
+};
+
+const PostImage = ({ images }) => {
+  const numImage = images.length;
+  if (numImage > 0)
+    return (
+      <View style={styles.postImage}>
+        {numImage > 0 &&
+          images.map((image, index) => {
+            return <SinglePostImg image={image} key={index} />;
+          })}
+      </View>
+    );
+};
+
+const PostDetail = ({ described, images }) => {
+  return () => {
+    return (
+      <View style={styles.postDetail}>
+        <Text style={{ padding: 5 }}>{described}</Text>
+        <PostImage images={images} />
+      </View>
+    );
+  };
+};
+
+const UserComment = React.memo((comment) => {
+  const avatar = comment.comment.item.user.avatar;
+  const imageSource =
+    avatar != null ? fileApi({ filename: avatar.fileName }) : defaultAvatar;
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "flex-start",
+        width: "100%",
+        marginTop: 10,
+      }}
+    >
+      <View>
+        <Image source={imageSource} style={styles.userAvatar} />
+      </View>
+      <View
+        style={{
+          borderWidth: 1,
+          borderColor: "black",
+          borderRadius: 1,
+          flex: 1,
+        }}
+      >
+        <Text>{comment.comment.item.user.username}</Text>
+        <Text>{comment.comment.item.content}</Text>
+      </View>
+    </View>
+  );
+});
+
+const PostDetailScreen = ({ navigation, route }) => {
   const post = route.params.post;
   const cmtLikeHandle = route.params.cmtLikeHandle;
-  const countPostImg = post?.images.length;
-  const postImage = post?.images;
+  const [comments, setComments] = useState(route.params.comments.data);
+  const [isLike, setLike] = useState(post?.isLike);
+  const [like, setListLike] = useState(post.like);
+  const [countLike, setCountLike] = useState(post.like.length);
   const token = useSelector((store) => store?.token);
-  const defaultAvatar = require("../assets/user.png");
-  const deviceWidth = Dimensions.get("window").width;
 
-  console.log(post);
+  useEffect(() => {
+    setComments([null, ...route.params.comments.data]);
+  }, []);
 
   const goHome = () => {
     navigation.goBack();
@@ -38,54 +106,11 @@ const PostDetail = ({ navigation, route }) => {
     });
   };
 
-  const UserComment = (comment) => {
-    // console.log(comment.comment.item);
-    return (
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "flex-start",
-          width: "100%",
-          marginTop: 10,
-        }}
-      >
-        <View>
-          <Image
-            source={require("../assets/user.png")}
-            style={styles.userAvatar}
-          />
-        </View>
-        <View
-          style={{
-            borderWidth: 1,
-            borderColor: "black",
-            borderRadius: 1,
-            width: "100%",
-          }}
-        >
-          <Text>{comment.comment.item.user.username}</Text>
-          <Text>{comment.comment.item.content}</Text>
-        </View>
-      </View>
-    );
-  };
-
-  const SinglePostImg = ({ image }) => {
-    const [height, setHeight] = useState(0);
-    const imageUri = fileApi({ filename: image.fileName });
-    Image.getSize(imageUri, (width, height) => {
-      const imageHeight = (deviceWidth / width) * height;
-      setHeight(imageHeight);
-    });
-    return (
-      <Image
-        source={{ uri: imageUri }}
-        style={{ height: height, resizeMode: "contain" }}
-      />
-    );
-  };
-
-  const CommentFooter = () => {
+  const CommentFooter = ({ avatar }) => {
+    const imageSource =
+      avatar != null
+        ? { uri: fileApi({ filename: avatar.fileName }) }
+        : defaultAvatar;
     const [comment, setComment] = useState("");
 
     const sendComment = async () => {
@@ -116,7 +141,7 @@ const PostDetail = ({ navigation, route }) => {
         }}
       >
         <Image
-          source={defaultAvatar}
+          source={imageSource}
           style={{
             width: 30,
             height: 30,
@@ -147,9 +172,8 @@ const PostDetail = ({ navigation, route }) => {
         };
         await likeAPI(data).then((res) => {
           if (res.isSuccess) {
-            console.log(res.data);
             setLike(!isLike);
-            setListLike(res?.data.like);
+            setListLike(res.like);
             if (res.data.isLike) {
               setCountLike(countLike + 1);
             } else {
@@ -165,11 +189,11 @@ const PostDetail = ({ navigation, route }) => {
         <View style={styles.postLikes}>
           <View style={{ flexDirection: "row" }}>
             <TouchableOpacity onPress={likePost}>
-              {isLike ? (
-                <AntDesign name="like1" size={24} color={"blue"} />
-              ) : (
-                <AntDesign name="like1" size={24} color={"black"} />
-              )}
+              <AntDesign
+                name="like1"
+                size={24}
+                color={isLike ? "blue" : "black"}
+              />
             </TouchableOpacity>
             <Text styles={{ fontSize: 26 }}>{` ${countLike}`}</Text>
           </View>
@@ -180,31 +204,21 @@ const PostDetail = ({ navigation, route }) => {
       );
     };
 
-    const PostDetail = () => {
-      return (
-        <View style={styles.postDetail}>
-          <Text style={{ padding: 5 }}>{post?.described}</Text>
-          {countPostImg > 0 && (
-            <View style={styles.postImage}>
-              {postImage.map((image, index) => {
-                return <SinglePostImg image={image} key={index} />;
-              })}
-            </View>
-          )}
-          <LikeArea />
-        </View>
-      );
-    };
     return (
       <View style={styles.commentContainer}>
         <FlatList
           data={comments}
           renderItem={(item) => {
-            return <UserComment comment={item} />;
+            if (item.index == 0) {
+              return <LikeArea />;
+            } else return <UserComment comment={item} />;
           }}
           key={(item) => item._id}
           nestedScrollEnabled={true}
-          ListHeaderComponent={PostDetail}
+          ListHeaderComponent={PostDetail({
+            described: post.described,
+            images: post.images,
+          })}
         />
       </View>
     );
@@ -218,7 +232,11 @@ const PostDetail = ({ navigation, route }) => {
         </TouchableOpacity>
 
         <Image
-          source={require("../assets/user.png")}
+          source={
+            post.author.avatar != null
+              ? { uri: fileApi({ filename: post.author.avatar.fileName }) }
+              : defaultAvatar
+          }
           style={styles.userAvatar}
         />
 
@@ -226,7 +244,7 @@ const PostDetail = ({ navigation, route }) => {
       </View>
 
       <CommentArea comments={comments} />
-      <CommentFooter />
+      <CommentFooter avatar={null} />
     </SafeAreaView>
   );
 };
@@ -241,6 +259,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     borderColor: "#166ada",
     borderWidth: 2.5,
+    marginRight: 10,
   },
   username: {
     fontSize: 24,
@@ -288,4 +307,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PostDetail;
+export default PostDetailScreen;

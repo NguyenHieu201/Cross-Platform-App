@@ -4,21 +4,82 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 // import { getFriendStatus } from "../api/firendApi";
 import { useSelector } from "react-redux";
-import { getFriendStatus } from "../api/firendApi";
+import { getFriendStatus, acceptInviteAPI } from "../api/firendApi";
+import {
+  getAllChatWithFriendId,
+  getAllMessageWithChatId,
+} from "../api/chatApi";
+import { showUserAPI } from "../api/userApi";
+import UserInformationDetail from "../components/UserDetails/UserDetail";
+import { FlatList } from "react-native-gesture-handler";
+import Post from "../components/Home/Post";
+import { getUserPostAPI } from "../api/postApi";
 
 const UserDetailScreen = ({ navigation, route }) => {
-  const user = route.params.user;
   const token = useSelector((store) => store?.token);
+  const [friendStatus, setStatus] = useState("none");
+  const [posts, setPosts] = useState([]);
+  const user = route.params.user;
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   getFriendStatus({ token: token, userId: user?._id }).then((res) => {
+  //     const userStatus = res.data;
+  //     switch (userStatus) {
+  //       case "received":
+  //         setStatus("Accept");
+  //         break;
+  //       case "friend":
+  //         setStatus("Friend");
+  //         break;
+  //     }
+  //     console.log(userStatus);
+  //   });
+
+  //   showUserAPI({ token: token, userId: user?._id }).then((res) => {
+  //     if (res.isSuccess) {
+  //       setPosts(res.posts);
+  //     } else {
+  //       console.log("Fetch post failed");
+  //     }
+  //   });
+  // }, []);
+
+  useLayoutEffect(() => {
     getFriendStatus({ token: token, userId: user?._id }).then((res) => {
       const userStatus = res.data;
+      switch (userStatus) {
+        case "received":
+          setStatus("Accept");
+          break;
+        case "friend":
+          setStatus("Friend");
+          break;
+      }
       console.log(userStatus);
     });
+
+    showUserAPI({ token: token, userId: user?._id }).then((res) => {
+      if (res.isSuccess) {
+        setPosts(res.posts);
+      } else {
+        console.log("Fetch post failed");
+      }
+    });
+    getUserPostAPI({ token: token, userId: user?._id }).then((res) => {
+      if (res.isSuccess) {
+        setPosts(res.posts);
+      } else {
+        console.log("Fetch posts failed");
+      }
+    });
   }, []);
+
+  useEffect(() => {
+    console.log(route.user);
+  }, [route]);
 
   const goBack = () => {
     navigation.goBack();
@@ -47,12 +108,42 @@ const UserDetailScreen = ({ navigation, route }) => {
         ? { uri: user?.avatar }
         : require("../assets/user.png");
     const username = user?.username;
-    const addFriend = () => {
+    const addFriend = async () => {
       console.log("Add friend");
+      const data = {
+        token: token,
+        userId: user?._id,
+      };
+      await acceptInviteAPI(data).then((res) => {
+        if (res.isSuccess) {
+          console.log("Accept invite Successfully");
+          setStatus("Friend");
+        } else {
+          console.log("Accept invite Failed");
+        }
+      });
     };
 
     const blockUser = () => {
       console.log("Block User");
+    };
+
+    const createMessageRoom = async () => {
+      console.log("Message");
+      const data = {
+        token: token,
+        friendId: user?._id,
+      };
+      await getAllChatWithFriendId(data).then(async (res) => {
+        const chatId = res.chatId;
+        const room = {
+          chatId: chatId,
+          friend: user,
+        };
+        navigation.navigate("PrivateChatScreen", {
+          room: room,
+        });
+      });
     };
     return (
       <View style={styles.userDetail}>
@@ -61,13 +152,31 @@ const UserDetailScreen = ({ navigation, route }) => {
 
         <View style={styles.userOptions}>
           <TouchableOpacity style={styles.userOptionBlock} onPress={addFriend}>
-            <Text style={styles.userOption}>Add Friend</Text>
+            <Text style={styles.userOption}>{friendStatus}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.userOptionBlock} onPress={blockUser}>
+          {friendStatus == "Friend" && (
+            <TouchableOpacity
+              style={styles.userOptionBlock}
+              onPress={createMessageRoom}
+            >
+              <Text style={styles.userOption}>Message</Text>
+            </TouchableOpacity>
+          )}
+
+          {/* <TouchableOpacity style={styles.userOptionBlock} onPress={blockUser}>
             <Text style={styles.userOption}>Block</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
+      </View>
+    );
+  };
+
+  const FlatListHeader = () => {
+    return (
+      <View>
+        <UserDetail />
+        {/* <UserInformationDetail user={user} /> */}
       </View>
     );
   };
@@ -82,7 +191,22 @@ const UserDetailScreen = ({ navigation, route }) => {
         <SearchBar />
       </View>
 
-      <UserDetail />
+      <FlatList
+        data={posts}
+        renderItem={(item) => {
+          return (
+            <Post
+              postData={item.item}
+              navigation={navigation}
+              index={item.index}
+            />
+          );
+        }}
+        key={(item) => item.index}
+        nestedScrollEnabled={true}
+        maxToRenderPerBatch={5}
+        ListHeaderComponent={FlatListHeader}
+      />
     </SafeAreaView>
   );
 };

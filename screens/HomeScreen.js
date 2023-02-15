@@ -1,19 +1,28 @@
-import React, { useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import { ScrollView, Modal, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "../components/Home/Header";
 import NavbarTab from "../components/Home/NavbarTab";
 import Post from "../components/Home/Post";
 import PostOption from "../components/Home/PostOption";
-import AddStatus from "../components/Status/AddStatus.js";
 import { useSelector } from "react-redux";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
+import { showPostAPI } from "../api/userApi";
 
 const HomeScreen = ({ navigation }) => {
-  const posts = useSelector((store) => store?.posts);
+  const token = useSelector((store) => store?.token);
+  const [posts, setPosts] = useState([]);
   const CreatePost = () => {
     return <PostOption navigation={navigation} />;
   };
+
+  useLayoutEffect(() => {
+    showPostAPI({ token: token }).then((res) => {
+      if (res.isSuccess) {
+        setPosts(res.posts);
+      }
+    });
+  });
 
   return (
     <SafeAreaView
@@ -45,6 +54,7 @@ const HomeScreen = ({ navigation }) => {
         key={(item) => item.index}
         nestedScrollEnabled={true}
         ListHeaderComponent={CreatePost}
+        maxToRenderPerBatch={5}
       />
     </SafeAreaView>
   );

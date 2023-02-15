@@ -140,6 +140,7 @@ const PrivateChatScreen = ({ navigation, route }) => {
       <View style={{ flex: 1 }}>
         <FlatList
           inverted={true}
+          maxToRenderPerBatch={20}
           data={chats}
           key={(item) => {
             item.index;

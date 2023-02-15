@@ -1,7 +1,13 @@
 import React from "react";
 import { View, Image, TouchableOpacity } from "react-native";
+import { useSelector } from "react-redux";
+import { searchAPI } from "../../api/userApi";
 
 const Header = () => {
+  const token = useSelector((store) => store?.token);
+  const handleSearch = async () => {
+    await searchAPI({ token: token });
+  };
   return (
     <View
       style={{
@@ -29,7 +35,7 @@ const Header = () => {
           flexDirection: "row",
         }}
       >
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleSearch}>
           <Image
             source={require("../../assets/header/search.jpg")}
             style={{ width: 50, height: 50, resizeMode: "contain" }}

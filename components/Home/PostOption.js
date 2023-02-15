@@ -1,10 +1,21 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
+import { useSelector } from "react-redux";
+import { showMeAPI, showUserAPI } from "../../api/userApi";
 
 const PostOption = ({ navigation }) => {
-  const showUserDetail = () => {
-    navigation.navigate("UserDetailScreen", {
-      user: null,
+  const token = useSelector((store) => store?.token);
+  const showUserDetail = async () => {
+    await showMeAPI({ token: token }).then((res) => {
+      if (res.isSuccess) {
+        const user = res.data;
+        console.log(user);
+        navigation.navigate("MeScreen", {
+          user: user,
+        });
+      } else {
+        console.log("Fetch me failed");
+      }
     });
   };
   const postTapAction = () => {

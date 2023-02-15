@@ -11,6 +11,9 @@ import AddStatus from "../components/Status/AddStatus";
 import PostDetailScreen from "./PostScreen";
 import ShowAllFriendScreen from "./ShowAllFriendScreen";
 import PrivateChatScreen from "./PrivateChatScreen";
+import MeDetailScreen from "./UserHomeScreen";
+import EditDetailScreen from "./EditDetailScreen";
+import EditPostScreen from "./EditPostScreen";
 
 export default function MainScreen() {
   const Stack = createStackNavigator();
@@ -37,6 +40,9 @@ export default function MainScreen() {
           component={ShowAllFriendScreen}
         />
         <Stack.Screen name="PrivateChatScreen" component={PrivateChatScreen} />
+        <Stack.Screen name="MeScreen" component={MeDetailScreen} />
+        <Stack.Screen name="EditDetailScreen" component={EditDetailScreen} />
+        <Stack.Screen name="EditPostScreen" component={EditPostScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
