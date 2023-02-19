@@ -32,7 +32,8 @@ const Header = ({ navigation, friend }) => {
         <Image source={imageSource} style={styles.friendAvatar} />
         <Text
           style={{
-            fontSize: 24,
+            fontSize: 26,
+            fontWeight:'bold',
             marginLeft: 10,
           }}
         >
@@ -57,12 +58,12 @@ const SingleMessage = React.memo(({ message, isFriend }) => {
       {isFriend && <UserAvatar />}
       <Text
         style={{
-          borderWidth: 1,
-          borderColor: "black",
-          fontSize: 16,
+          fontSize: 18,
           borderRadius: 15,
-          padding: 5,
+          padding: 10,
           maxWidth: "50%",
+          backgroundColor: isFriend ? "#DCDCDC": "#1E90FF",
+          color: isFriend ? "#black": "white",
         }}
       >
         {message.content}
@@ -75,6 +76,7 @@ const InputMessage = ({ handleSendMessage }) => {
   const [message, setMessage] = useState("");
   return (
     <TextInput
+    style={styles.chat_input}
       placeholder="Input your chat ..."
       onSubmitEditing={() => {
         handleSendMessage({ message: message });
@@ -92,8 +94,9 @@ const UserAvatar = ({ userImage }) => {
     <Image
       source={imageSource}
       style={{
-        height: 30,
-        width: 30,
+        height: 25,
+        width: 25,
+        
       }}
     />
   );
@@ -171,14 +174,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 5,
     marginTop: 10,
-    borderWidth: 1,
-    borderColor: "black",
+    backgroundColor: '#F5F5F5',
+    borderColor:'gray',
+    borderBottomWidth:0.5,
   },
   friendAvatar: {
     width: 40,
     height: 40,
-    borderWidth: 1,
     radius: 15,
+    marginRight:10,
   },
   container: {
     height: "100%",
@@ -189,9 +193,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   inputChat: {
-    height: 30,
-    borderWidth: 1,
-    borderColor: "black",
+    height: 50,
+    fontSize: 25,
+    backgroundColor:"white",
+    marginHorizontal:5,
+  },
+  chat_input: {
+    fontSize:18,
+    padding: 5,
+    paddingLeft: 10,
   },
 });
 

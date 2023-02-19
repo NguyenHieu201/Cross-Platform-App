@@ -9,7 +9,8 @@ const NavbarTab = ({ navigation }) => {
           flexDirection: "row",
           justifyContent: "space-around",
           borderBottomColor: "#05050538",
-          borderBottomWidth: 1,
+          paddingBottom:5,
+          borderBottomWidth: 0.5,
         }}
       >
         {/* Home */}
@@ -19,6 +20,7 @@ const NavbarTab = ({ navigation }) => {
             style={{
               width: 30,
               height: 30,
+              tintColor:'#393939',
               resizeMode: "contain",
             }}
           />
@@ -30,6 +32,7 @@ const NavbarTab = ({ navigation }) => {
             style={{
               width: 30,
               height: 30,
+              tintColor:'#393939',
               resizeMode: "contain",
             }}
           />
@@ -41,6 +44,7 @@ const NavbarTab = ({ navigation }) => {
             style={{
               width: 30,
               height: 30,
+              tintColor:'#393939',
               resizeMode: "contain",
             }}
           />
@@ -54,6 +58,7 @@ const NavbarTab = ({ navigation }) => {
             style={{
               width: 30,
               height: 30,
+              tintColor:'#393939',
               resizeMode: "contain",
             }}
           />

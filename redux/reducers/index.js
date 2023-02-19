@@ -15,7 +15,7 @@ const reducers = (state = initialState, action) => {
   switch (action.type) {
     case "LOGIN":
       console.log("Login");
-      const socket = io("http://192.168.1.23:3000", {
+      const socket = io("http://192.168.1.220:3000", {
         extraHeaders: { token: `${action.payload.token}` },
       });
       return {

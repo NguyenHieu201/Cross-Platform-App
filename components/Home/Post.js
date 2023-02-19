@@ -66,7 +66,7 @@ const Post = ({ navigation, index, route }) => {
             <AntDesign
               name="like1"
               size={24}
-              color={isLike ? "blue" : "black"}
+              color={isLike ? "blue" : "#606060"}
             />
           </TouchableOpacity>
 
@@ -140,7 +140,7 @@ const Post = ({ navigation, index, route }) => {
               marginLeft: 5,
             }}
           >
-            <FontAwesome name="send" size={20} />
+            <FontAwesome name="send" size={20} color='#505050'/>
           </TouchableOpacity>
         </View>
       </View>
@@ -175,7 +175,10 @@ const styles = StyleSheet.create({
     // borderTopColor: "#05050538",
     // borderTopWidth: 1,
     marginTop: 10,
+    paddingBottom: 10,
     backgroundColor: "#fff",
+    borderBottomColor:"#f0f0f0",
+    borderBottomWidth: 10,
   },
   postHeader: {
     flexDirection: "row",
@@ -199,18 +202,18 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   postLikes: {
-    paddingTop: 5,
+    paddingTop: 10,
+    paddingBottom: 5,
     flexDirection: "row",
     alignContent: "center",
     justifyContent: "space-between",
     width: "100%",
   },
-  postDescribe: { paddingHorizontal: 10, fontSize: 16 },
+  postDescribe: { paddingHorizontal: 10, fontSize: 17 },
   commentInput: {
     marginLeft: 10,
-    borderColor: "#f0f2f5",
+    backgroundColor: "#f5f5f5",
     height: 40,
-    borderWidth: 1,
     width: "85%",
     paddingLeft: 10,
     position: "relative",

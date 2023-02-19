@@ -29,7 +29,7 @@ const LikeArea = ({ token, post, comments, handleUpdatePost }) => {
     <View style={styles.postLikes}>
       <View style={{ flexDirection: "row" }}>
         <TouchableOpacity onPress={likePost}>
-          <AntDesign name="like1" size={24} color={isLike ? "blue" : "black"} />
+          <AntDesign name={isLike?"like1":"like2" } size={24} color={isLike ? "blue" : "#606060"} />
         </TouchableOpacity>
         <Text styles={{ fontSize: 26 }}>{` ${like.length}`}</Text>
       </View>
@@ -42,11 +42,13 @@ const LikeArea = ({ token, post, comments, handleUpdatePost }) => {
 
 const styles = StyleSheet.create({
   postLikes: {
-    paddingTop: 5,
+    paddingVertical: 8,
     flexDirection: "row",
     alignContent: "center",
     justifyContent: "space-between",
     width: "100%",
+    borderColor: '#dcdcdc',
+    borderWidth: 0.5,
   },
 });
 

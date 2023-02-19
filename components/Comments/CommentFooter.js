@@ -66,7 +66,7 @@ const CommentFooter = ({ avatar, token, postID, handleAddComment }) => {
         onSubmitEditing={sendComment}
       />
       <TouchableOpacity onPress={sendComment}>
-        <FontAwesome name="send" size={20} />
+        <FontAwesome name="send" size={20} color='#505050'/>
       </TouchableOpacity>
     </View>
   );
@@ -74,12 +74,10 @@ const CommentFooter = ({ avatar, token, postID, handleAddComment }) => {
 
 const styles = StyleSheet.create({
   commentInput: {
-    marginLeft: 10,
-    borderColor: "black",
+    backgroundColor:'#eCeCeC',
     height: 40,
-    borderWidth: 1,
     width: "80%",
-    paddingLeft: 10,
+    paddingLeft:10,
     borderRadius: 30,
   },
 });

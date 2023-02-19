@@ -1,4 +1,4 @@
-import { StyleSheet, View, TextInput, TouchableOpacity } from "react-native";
+import { StyleSheet, View, TextInput, TouchableOpacity, Image, Button } from "react-native";
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
@@ -9,16 +9,24 @@ import { loginAPI, showPostAPI } from "../api/userApi";
 
 const styles = StyleSheet.create({
   phone_input: {
-    borderColor: "black",
-    borderWidth: 1,
-    borderRadius: 15,
+    borderColor: "#5F9EA0",  
+    borderWidth: 3,
+    fontSize: 16,
+    borderRadius: 10,
     paddingLeft: 10,
+    marginBottom: 10,
+    height: 50,
   },
-  password_input: {
-    borderColor: "black",
-    borderWidth: 1,
-    borderRadius: 15,
-    paddingLeft: 10,
+  container_login: {
+    flex: 1,
+    justifyContent:'center',
+    marginHorizontal: 10,
+    marginBottom: 80,
+  },
+  imglogin:{
+    width: "100%",
+    height: 150,
+    marginBottom: 50,
   },
 });
 
@@ -56,7 +64,11 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.container_login}>
+    <Image 
+        source={require("../assets/fblogo.jpg")} 
+        style={styles.imglogin}
+        ></Image>
       <View>
         <TextInput
           label="phone"
@@ -80,16 +92,20 @@ export default function LoginScreen({ navigation }) {
         ></TextInput>
       </View>
 
-      <TouchableOpacity mode="contained" onPress={onLoginPress}>
-        <AntDesign
-          name="rightcircle"
-          size={50}
-          color={"#00bfff"}
-          style={{
-            width: 100,
-          }}
-        />
-      </TouchableOpacity>
+      <Button 
+        onPress={onLoginPress}
+        style={styles.login_btn}
+        title="Login"
+        color='#2E8B57'     
+      >
+      </Button>
+      <Button 
+        onPress={onLoginPress}
+        style={styles.login_btn}
+        title="Login"
+        color='#2E8B57'     
+      >
+      </Button>
     </SafeAreaView>
   );
 }

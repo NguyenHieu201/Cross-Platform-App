@@ -7,7 +7,7 @@ import { StyleSheet } from "react-native";
 import { fileApi } from "../api/fileApi";
 import { useDispatch, useSelector } from "react-redux";
 import { memo } from "react";
-
+import { Ionicons } from "@expo/vector-icons";
 import CommentArea from "../components/Comments/CommentArea";
 import { updatePostAction } from "../redux/actions/postActions";
 
@@ -17,7 +17,7 @@ const PostDetailHeader = memo(({ post, goHome }) => {
   return (
     <View style={styles.detailHeader}>
       <TouchableOpacity onPress={goHome}>
-        <AntDesign name="back" size={24} />
+        <Ionicons name="chevron-back" size={24} color={"black"} />
       </TouchableOpacity>
 
       <Image
@@ -79,6 +79,7 @@ const PostDetailScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   detailHeader: {
     flexDirection: "row",
+    marginTop:10,
   },
   userAvatar: {
     width: 30,
@@ -90,6 +91,7 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 24,
+    fontWeight:'bold',
   },
   postDetail: {
     borderBottomColor: "black",
@@ -120,6 +122,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     height: "100%",
     paddingBottom: 15,
+    backgroundColor:'#ffffff'
   },
   commentFooter: {
     flex: 1,

@@ -29,13 +29,17 @@ const SingleComment = React.memo((comment) => {
       </View>
       <View
         style={{
-          borderWidth: 1,
-          borderColor: "black",
-          borderRadius: 1,
-          flex: 1,
+          backgroundColor:'#e5e5e5',
+          borderRadius: 10,
+          padding:5,
+          paddingHorizontal:10,
+          
         }}
       >
-        <Text>{comment.comment.item.user.username}</Text>
+        <Text style={{
+          fontSize:16,
+          fontWeight:'bold',
+        }}>{comment.comment.item.user.username}</Text>
         <Text>{comment.comment.item.content}</Text>
       </View>
     </View>
@@ -91,7 +95,8 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     borderColor: "#166ada",
     borderWidth: 2.5,
-    marginRight: 10,
+    marginRight: 5,
+    marginLeft:10,
   },
   commentContainer: {
     flex: 1,
