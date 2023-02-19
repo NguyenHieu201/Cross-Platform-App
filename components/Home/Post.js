@@ -5,99 +5,24 @@ import { fileApi } from "../../api/fileApi";
 import { Icon } from "react-native-elements";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useReducer, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createCommentAPI, listCommentAPI, likeAPI } from "../../api/postApi";
 import { Dimensions } from "react-native";
 import { updatePostAction } from "../../redux/actions/postActions";
+import PostHeader from "../Post/PostHeader";
+import PostDescribe from "../Post/PostDescribe";
+import PostImage from "../Post/PostImage";
 
 const defaultAvatar = require("../../assets/user.png");
 
-const PostHeader = ({ username, avatar, editPost }) => {
-  const imageSource =
-    avatar != null
-      ? { uri: fileApi({ filename: avatar.fileName }) }
-      : defaultAvatar;
-  return (
-    <View style={styles.postHeader}>
-      <View
-        style={{
-          flexDirection: "row",
-        }}
-      >
-        <Image source={imageSource} style={styles.userAvatar} />
-        <View>
-          <Text> {` ${username}`}</Text>
-        </View>
-      </View>
-
-      <View>
-        <TouchableOpacity onPress={editPost}>
-          <Text style={{ fontWeight: "900" }}>...</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-};
-
-const PostDescribe = ({ described }) => {
-  return (
-    <View>
-      <Text style={styles.postDescribe}>{described}</Text>
-    </View>
-  );
-};
-
-const SinglePostImg = ({ image }) => {
-  const [height, setHeight] = useState(0);
-  const imageUri = fileApi({ filename: image.fileName });
-  const deviceWidth = Dimensions.get("window").width;
-  Image.getSize(imageUri, (width, height) => {
-    const imageHeight = (deviceWidth / width) * height;
-    setHeight(imageHeight);
-  });
-  return (
-    <Image
-      source={{ uri: imageUri }}
-      style={{ height: height, resizeMode: "contain" }}
-    />
-  );
-};
-
-const PostImage = ({ images }) => {
-  const numImage = images.length;
-  if (numImage > 0)
-    return (
-      <View style={styles.postImage}>
-        {numImage > 0 &&
-          images.map((image, index) => {
-            return <SinglePostImg image={image} key={index} />;
-          })}
-      </View>
-    );
-};
-
-const Post = ({ postData, navigation, index }) => {
-  const [post, setPost] = useState(postData);
-  const dispatch = useDispatch();
+const Post = ({ navigation, index, route }) => {
+  const [post, setPost] = useState(useSelector((store) => store?.posts[index]));
   const token = useSelector((store) => {
     return store?.token;
   });
+  const avatar = useSelector((store) => store?.avatar);
   const id = useSelector((store) => store?.id);
-
-  useEffect(() => {
-    dispatch(updatePostAction({ index: index, post: post }));
-  }, [post]);
-
-  const cmtLikeHandle = (updatedInfo) => {
-    setPost({
-      ...post,
-      ...updatedInfo,
-    });
-    dispatch(updatePostAction({ index: index, post: post }));
-  };
-
-  const isNavigate = navigation !== undefined;
 
   const PostLikes = () => {
     const [isLike, setLike] = useState(post.isLike);
@@ -124,12 +49,11 @@ const Post = ({ postData, navigation, index }) => {
       await listCommentAPI(data).then((res) => {
         if (res.isSuccess) {
           const comments = res.comments;
-          if (isNavigate)
-            navigation.navigate("PostDetailScreen", {
-              comments: comments,
-              post: post,
-              cmtLikeHandle: cmtLikeHandle,
-            });
+          navigation.navigate("PostDetailScreen", {
+            comments: comments,
+            post: post,
+            index: index,
+          });
         } else {
           console.log("Get comment fail");
         }
@@ -146,7 +70,7 @@ const Post = ({ postData, navigation, index }) => {
             />
           </TouchableOpacity>
 
-          <Text styles={{ fontSize: 26 }}>{` ${post?.like.length}`}</Text>
+          <Text styles={{ fontSize: 26 }}>{` ${post.like.length}`}</Text>
         </View>
         <View>
           <TouchableOpacity onPress={showAllComment}>
@@ -241,7 +165,7 @@ const Post = ({ postData, navigation, index }) => {
       <PostDescribe described={post.described} />
       <PostImage images={post.images} />
       <PostLikes />
-      <CommentFooter avatar={post.author.avatar} />
+      <CommentFooter avatar={avatar} />
     </View>
   );
 };
@@ -294,4 +218,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Post;
+export default memo(Post, (props, nextProps) => {
+  if (nextProps.route.params?.index != nextProps.index) {
+    return true;
+  }
+  return false;
+});

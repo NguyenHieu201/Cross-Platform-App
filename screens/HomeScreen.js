@@ -1,60 +1,44 @@
-import React, { useLayoutEffect, useState } from "react";
-import { ScrollView, Modal, Text, View } from "react-native";
+import React, { memo, useEffect, useLayoutEffect, useState } from "react";
+import { ScrollView, Modal, Text, View, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "../components/Home/Header";
 import NavbarTab from "../components/Home/NavbarTab";
 import Post from "../components/Home/Post";
 import PostOption from "../components/Home/PostOption";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
-import { showPostAPI } from "../api/userApi";
+import { updatePostAction } from "../redux/actions/postActions";
 
-const HomeScreen = ({ navigation }) => {
-  const token = useSelector((store) => store?.token);
-  const [posts, setPosts] = useState([]);
-  const CreatePost = () => {
-    return <PostOption navigation={navigation} />;
-  };
+const HomeHeader = memo(({ navigation }) => {
+  return (
+    <View style={{ backgroundColor: "#fff" }}>
+      <Header />
+      <NavbarTab navigation={navigation} />
+    </View>
+  );
+});
 
-  useLayoutEffect(() => {
-    showPostAPI({ token: token }).then((res) => {
-      if (res.isSuccess) {
-        setPosts(res.posts);
-      }
-    });
-  });
+const HomeScreen = ({ navigation, route }) => {
+  const posts = useSelector((store) => store?.posts);
 
   return (
     <SafeAreaView
       style={{ backgroundColor: "#f7f7f7", marginBottom: 60, height: "100%" }}
     >
-      <View style={{ backgroundColor: "#fff" }}>
-        <Header />
-        <NavbarTab navigation={navigation} />
-      </View>
-      {/* <ScrollView showsVerticalScrollIndicator={false}>
-        <PostOption navigation={navigation} />
-        <View>
-          {posts.map((post, index) => (
-            <Post postData={post} key={index} navigation={navigation} />
-          ))}
-        </View>
-      </ScrollView> */}
+      <HomeHeader navigation={navigation} />
+
       <FlatList
         data={posts}
         renderItem={(item) => {
           return (
-            <Post
-              postData={item.item}
-              navigation={navigation}
-              index={item.index}
-            />
+            <Post navigation={navigation} index={item.index} route={route} />
           );
         }}
         key={(item) => item.index}
         nestedScrollEnabled={true}
-        ListHeaderComponent={CreatePost}
-        maxToRenderPerBatch={5}
+        ListHeaderComponent={<PostOption navigation={navigation} />}
+        maxToRenderPerBatch={3}
+        removeClippedSubviews={true}
       />
     </SafeAreaView>
   );

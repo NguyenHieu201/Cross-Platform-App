@@ -2,9 +2,11 @@ import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { useSelector } from "react-redux";
 import { showMeAPI, showUserAPI } from "../../api/userApi";
+import { fileApi } from "../../api/fileApi";
 
 const PostOption = ({ navigation }) => {
   const token = useSelector((store) => store?.token);
+  const avatar = useSelector((store) => store?.avatar);
   const showUserDetail = async () => {
     await showMeAPI({ token: token }).then((res) => {
       if (res.isSuccess) {
@@ -38,7 +40,11 @@ const PostOption = ({ navigation }) => {
         <View>
           <TouchableOpacity onPress={showUserDetail}>
             <Image
-              source={require("../../assets/user.png")}
+              source={
+                avatar != null
+                  ? { uri: fileApi({ filename: avatar.fileName }) }
+                  : defaultAvatar
+              }
               style={{
                 width: 40,
                 height: 40,

@@ -37,7 +37,12 @@ export default function LoginScreen({ navigation }) {
       if (loginRes.isSuccess) {
         await showPostAPI({ token: loginRes.token }).then((showPostRes) => {
           if (showPostRes.isSuccess) {
-            dispatch(loginAction({ token: loginRes.token, id: loginRes.id }));
+            dispatch(
+              loginAction({
+                token: loginRes.token,
+                userInfo: loginRes.userInfo,
+              })
+            );
             dispatch(getListPostAction({ posts: showPostRes.posts }));
             navigation.navigate("HomeScreen");
           } else {

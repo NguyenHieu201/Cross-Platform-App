@@ -8,12 +8,22 @@ export const loginAPI = async ({ phonenumber, password }) => {
         phonenumber: phonenumber,
         password: password,
       })
-      .then((res) => {
-        return resolve({
-          isSuccess: true,
-          token: res.data.token,
-          id: res.data.data.id,
-        });
+      .then(async (res) => {
+        await showMeAPI({ token: res.data.token })
+          .then((showMeRes) => {
+            // console.log(showMeRes.data);
+            return resolve({
+              isSuccess: true,
+              token: res.data.token,
+              userInfo: showMeRes.data,
+            });
+          })
+          .catch((showMeErr) => {
+            console.log(showMeErr.response);
+            return resolve({
+              isSuccess: false,
+            });
+          });
       })
       .catch((err) => {
         console.log(err?.response.data.message);
