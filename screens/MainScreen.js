@@ -14,6 +14,9 @@ import PrivateChatScreen from "./PrivateChatScreen";
 import MeDetailScreen from "./UserHomeScreen";
 import EditDetailScreen from "./EditDetailScreen";
 import EditPostScreen from "./EditPostScreen";
+import SignupScreen from "./SignupScreen";
+import SearchScreen from "./SearchScreen";
+import MenuScreen from "./MenuScreen";
 
 export default function MainScreen() {
   const Stack = createStackNavigator();
@@ -43,6 +46,9 @@ export default function MainScreen() {
         <Stack.Screen name="MeScreen" component={MeDetailScreen} />
         <Stack.Screen name="EditDetailScreen" component={EditDetailScreen} />
         <Stack.Screen name="EditPostScreen" component={EditPostScreen} />
+        <Stack.Screen name="SignUpScreen" component={SignupScreen} />
+        <Stack.Screen name="SearchScreen" component={SearchScreen} />
+        <Stack.Screen name="MenuScreen" component={MenuScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

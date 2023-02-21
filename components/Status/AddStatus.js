@@ -10,9 +10,11 @@ import {
 import { Icon } from "react-native-elements";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { createPostAPI } from "../../api/postApi";
 import { convertBase64 } from "../../utils/convertBase64";
+import { fileApi } from "../../api/fileApi";
+import { addPostAction } from "../../redux/actions/postActions";
 
 const AddStatus = ({ navigation, assets = [] }) => {
   const [pics, setPics] = useState(assets);
@@ -20,6 +22,8 @@ const AddStatus = ({ navigation, assets = [] }) => {
   const [create, setCreate] = useState(false);
 
   const token = useSelector((store) => store?.token);
+  const user = useSelector((store) => store);
+  const dispatch = useDispatch();
   const addPic = (pic) => {
     setPics([...pics, pic]);
   };
@@ -40,7 +44,17 @@ const AddStatus = ({ navigation, assets = [] }) => {
       await createPostAPI(data).then((res) => {
         if (res.isSuccess) {
           console.log("Post successfully");
-          navigation.goBack();
+          const routes = navigation.getState()?.routes;
+          const pvRoute = routes[routes.length - 2].name;
+          if (pvRoute == "HomeScreen") {
+            dispatch(addPostAction({ post: res.post }));
+            // console.log(res.post);
+            navigation.navigate(pvRoute, {
+              createPost: true,
+            });
+          } else {
+            navigation.navigate(pvRoute);
+          }
         } else {
           console.log("Post not success");
         }
@@ -82,7 +96,7 @@ const AddStatus = ({ navigation, assets = [] }) => {
     }).then((result) => {
       if (!result.canceled) {
         // addPic(result?.assets[0]);
-        setPics(result?.assets);
+        setPics([...pics, ...result?.assets]);
         console.log("Take photo from gallery");
       } else {
         console.log("Not take photo");
@@ -158,9 +172,11 @@ const AddStatus = ({ navigation, assets = [] }) => {
         <View>
           <Image
             style={{ height: 50, width: 50, borderRadius: 100 }}
-            source={{
-              uri: "https://id.gravatar.com/userimage/129559065/df8f7bdab54b67ad8a17c82009d0c5f6?size=300",
-            }}
+            source={
+              user?.avatar !== null
+                ? { uri: fileApi({ filename: user.avatar.fileName }) }
+                : require("../../assets/user.png")
+            }
           ></Image>
         </View>
         <Text
@@ -171,7 +187,7 @@ const AddStatus = ({ navigation, assets = [] }) => {
             marginLeft: 10,
           }}
         >
-          User name
+          {user?.username}
         </Text>
       </View>
       <View style={{ marginTop: -40, marginLeft: 70, flexDirection: "row" }}>

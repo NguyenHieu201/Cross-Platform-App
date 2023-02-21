@@ -3,10 +3,15 @@ import { View, Image, TouchableOpacity } from "react-native";
 import { useSelector } from "react-redux";
 import { searchAPI } from "../../api/userApi";
 
-const Header = () => {
+const Header = ({ navigation }) => {
   const token = useSelector((store) => store?.token);
   const handleSearch = async () => {
-    await searchAPI({ token: token });
+    navigation.navigate("SearchScreen");
+    // await searchAPI({ token: token });
+  };
+
+  const navigateMenuScreen = () => {
+    navigation.navigate("MenuScreen");
   };
   return (
     <View
@@ -41,7 +46,7 @@ const Header = () => {
             style={{ width: 50, height: 50, resizeMode: "contain" }}
           />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={navigateMenuScreen}>
           <Image
             source={require("../../assets/header/navbar.jpg")}
             style={{ width: 50, height: 50, resizeMode: "contain" }}

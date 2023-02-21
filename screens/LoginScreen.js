@@ -1,4 +1,11 @@
-import { StyleSheet, View, TextInput, TouchableOpacity, Image, Button } from "react-native";
+import {
+  StyleSheet,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  Button,
+} from "react-native";
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
@@ -9,7 +16,7 @@ import { loginAPI, showPostAPI } from "../api/userApi";
 
 const styles = StyleSheet.create({
   phone_input: {
-    borderColor: "#5F9EA0",  
+    borderColor: "#5F9EA0",
     borderWidth: 3,
     fontSize: 16,
     borderRadius: 10,
@@ -19,11 +26,11 @@ const styles = StyleSheet.create({
   },
   container_login: {
     flex: 1,
-    justifyContent:'center',
+    justifyContent: "center",
     marginHorizontal: 10,
     marginBottom: 80,
   },
-  imglogin:{
+  imglogin: {
     width: "100%",
     height: 150,
     marginBottom: 50,
@@ -52,7 +59,11 @@ export default function LoginScreen({ navigation }) {
               })
             );
             dispatch(getListPostAction({ posts: showPostRes.posts }));
-            navigation.navigate("HomeScreen");
+            // navigation.navigate("HomeScreen");
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "HomeScreen" }],
+            });
           } else {
             console.log("ShowPost Error");
           }
@@ -63,12 +74,16 @@ export default function LoginScreen({ navigation }) {
     });
   };
 
+  const onSignupPress = () => {
+    navigation.navigate("SignUpScreen");
+  };
+
   return (
     <SafeAreaView style={styles.container_login}>
-    <Image 
-        source={require("../assets/fblogo.jpg")} 
+      <Image
+        source={require("../assets/fblogo.jpg")}
         style={styles.imglogin}
-        ></Image>
+      ></Image>
       <View>
         <TextInput
           label="phone"
@@ -92,20 +107,18 @@ export default function LoginScreen({ navigation }) {
         ></TextInput>
       </View>
 
-      <Button 
+      <Button
         onPress={onLoginPress}
         style={styles.login_btn}
         title="Login"
-        color='#2E8B57'     
-      >
-      </Button>
-      <Button 
-        onPress={onLoginPress}
+        color="#2E8B57"
+      ></Button>
+      <Button
+        onPress={onSignupPress}
         style={styles.login_btn}
-        title="Login"
-        color='#2E8B57'     
-      >
-      </Button>
+        title="Sign Up"
+        color="#2E8B57"
+      ></Button>
     </SafeAreaView>
   );
 }

@@ -7,7 +7,7 @@ import Header from "../components/Home/Header";
 import NavbarTab from "../components/Home/NavbarTab";
 import { getListFriendAPI, getListInviteAPI } from "../api/firendApi";
 
-const FriendScreen = ({ navigation }) => {
+const FriendScreen = ({ navigation, route }) => {
   const [friendInvite, setInvite] = useState([]);
   const token = useSelector((store) => store?.token);
 
@@ -18,11 +18,16 @@ const FriendScreen = ({ navigation }) => {
       }
     });
   }, []);
+
   return (
     <SafeAreaView style={{ backgroundColor: "#fff", height: "100%" }}>
       <NavbarTab navigation={navigation} />
       <View style={{ flex: 1, paddingBottom: 30 }}>
-        <Friends inviteFriends={friendInvite} navigation={navigation} />
+        <Friends
+          inviteFriends={friendInvite}
+          navigation={navigation}
+          route={route}
+        />
       </View>
     </SafeAreaView>
   );

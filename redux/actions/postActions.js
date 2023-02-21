@@ -7,3 +7,12 @@ export const updatePostAction = ({ post, index }) => {
     },
   };
 };
+
+export const addPostAction = ({ post }) => {
+  return {
+    type: "ADDPOST",
+    payload: {
+      post: post,
+    },
+  };
+};

@@ -13,15 +13,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { useLayoutEffect } from "react";
 import { getAllChatWithFriendId } from "../api/chatApi";
 import { useSelector } from "react-redux";
+import { fileApi } from "../api/fileApi";
 import { io } from "socket.io-client";
 // import socket from "../utils/socket";
 
-const Header = ({ navigation, friend }) => {
-  const goBack = () => {
-    navigation.goBack();
-  };
+const Header = ({ friend, goBack }) => {
   const imageSource =
-    friend?.avatar != null ? {} : require("../assets/user.png");
+    friend?.avatar != null
+      ? { uri: fileApi({ filename: friend.avatar.fileName }) }
+      : require("../assets/user.png");
   return (
     <View style={styles.headerContainer}>
       <TouchableOpacity onPress={goBack}>
@@ -33,7 +33,7 @@ const Header = ({ navigation, friend }) => {
         <Text
           style={{
             fontSize: 26,
-            fontWeight:'bold',
+            fontWeight: "bold",
             marginLeft: 10,
           }}
         >
@@ -44,7 +44,7 @@ const Header = ({ navigation, friend }) => {
   );
 };
 
-const SingleMessage = React.memo(({ message, isFriend }) => {
+const SingleMessage = React.memo(({ message, isFriend, avatar }) => {
   return (
     <View
       style={{
@@ -55,15 +55,15 @@ const SingleMessage = React.memo(({ message, isFriend }) => {
       }}
     >
       {!isFriend && <Text style={{ flex: 1 }}></Text>}
-      {isFriend && <UserAvatar />}
+      {isFriend && <UserAvatar userImage={avatar} />}
       <Text
         style={{
           fontSize: 18,
           borderRadius: 15,
           padding: 10,
           maxWidth: "50%",
-          backgroundColor: isFriend ? "#DCDCDC": "#1E90FF",
-          color: isFriend ? "#black": "white",
+          backgroundColor: isFriend ? "#DCDCDC" : "#1E90FF",
+          color: isFriend ? "#black" : "white",
         }}
       >
         {message.content}
@@ -76,7 +76,7 @@ const InputMessage = ({ handleSendMessage }) => {
   const [message, setMessage] = useState("");
   return (
     <TextInput
-    style={styles.chat_input}
+      style={styles.chat_input}
       placeholder="Input your chat ..."
       onSubmitEditing={() => {
         handleSendMessage({ message: message });
@@ -89,14 +89,16 @@ const InputMessage = ({ handleSendMessage }) => {
 };
 
 const UserAvatar = ({ userImage }) => {
-  const imageSource = require("../assets/user.png");
+  const imageSource =
+    userImage !== null
+      ? { uri: fileApi({ filename: userImage.fileName }) }
+      : require("../assets/user.png");
   return (
     <Image
       source={imageSource}
       style={{
         height: 25,
         width: 25,
-        
       }}
     />
   );
@@ -109,19 +111,13 @@ const PrivateChatScreen = ({ navigation, route }) => {
   const token = useSelector((store) => store?.token);
   const socket = useSelector((store) => store?.socket);
 
+  // console.log(room.chatId);
+
   useEffect(() => {
     socket.on("message", (msg) => {
       setChats((previousChats) => [msg, ...previousChats]);
     });
   }, []);
-
-  const handleSendMessage = ({ message }) => {
-    socket.emit("chatmessage", {
-      token: token,
-      receiverId: friendId,
-      content: message,
-    });
-  };
 
   useLayoutEffect(() => {
     getAllChatWithFriendId({
@@ -136,9 +132,29 @@ const PrivateChatScreen = ({ navigation, route }) => {
     });
   }, []);
 
+  const goBack = () => {
+    const routes = navigation.getState()?.routes;
+    const pvRoute = routes[routes.length - 2].name;
+    if (pvRoute == "MessagesScreen") {
+      navigation.navigate(pvRoute, {
+        roomId: room.chatId,
+        latestMessage: chats[0],
+      });
+    } else {
+      navigation.navigate(pvRoute);
+    }
+  };
+
+  const handleSendMessage = ({ message }) => {
+    socket.emit("chatmessage", {
+      token: token,
+      receiverId: friendId,
+      content: message,
+    });
+  };
   return (
     <SafeAreaView style={styles.container}>
-      <Header navigation={navigation} friend={room.friend} />
+      <Header friend={room.friend} goBack={goBack} />
 
       <View style={{ flex: 1 }}>
         <FlatList
@@ -154,6 +170,7 @@ const PrivateChatScreen = ({ navigation, route }) => {
                 message={item.item}
                 isFriend={item.item.senderId == friendId}
                 index={item.index}
+                avatar={room.friend.avatar}
               />
             );
           }}
@@ -174,15 +191,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 5,
     marginTop: 10,
-    backgroundColor: '#F5F5F5',
-    borderColor:'gray',
-    borderBottomWidth:0.5,
+    backgroundColor: "#F5F5F5",
+    borderColor: "gray",
+    borderBottomWidth: 0.5,
   },
   friendAvatar: {
     width: 40,
     height: 40,
     radius: 15,
-    marginRight:10,
+    marginRight: 10,
   },
   container: {
     height: "100%",
@@ -195,11 +212,11 @@ const styles = StyleSheet.create({
   inputChat: {
     height: 50,
     fontSize: 25,
-    backgroundColor:"white",
-    marginHorizontal:5,
+    backgroundColor: "white",
+    marginHorizontal: 5,
   },
   chat_input: {
-    fontSize:18,
+    fontSize: 18,
     padding: 5,
     paddingLeft: 10,
   },

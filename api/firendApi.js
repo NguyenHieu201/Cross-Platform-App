@@ -64,8 +64,10 @@ export const acceptInviteAPI = async ({ token, userId }) => {
     await axios
       .post(url, data, config)
       .then((res) => {
+        console.log(res.data);
         return resolve({
           isSuccess: true,
+          message: res.data.message,
         });
       })
       .catch((err) => {
@@ -89,6 +91,86 @@ export const denyInvite = async ({ token, userId }) => {
     await axios
       .post(url, data, config)
       .then((res) => {
+        console.log(res.data);
+        return resolve({
+          isSuccess: true,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        return resolve({
+          isSuccess: false,
+        });
+      });
+  });
+};
+
+export const removeFriend = async ({ token, userId }) => {
+  const url = `${base_url}/friends/set-remove`;
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+  const data = {
+    user_id: userId,
+  };
+  return new Promise(async (resolve) => {
+    await axios
+      .post(url, data, config)
+      .then((res) => {
+        console.log(res.data);
+        return resolve({
+          isSuccess: true,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        return resolve({
+          isSuccess: false,
+        });
+      });
+  });
+};
+
+export const sendInvite = async ({ token, userId }) => {
+  const url = `${base_url}/friends/set-request-friend`;
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+  const data = {
+    user_id: userId,
+  };
+  return new Promise(async (resolve) => {
+    await axios
+      .post(url, data, config)
+      .then((res) => {
+        console.log(res.data);
+        return resolve({
+          isSuccess: true,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        return resolve({
+          isSuccess: false,
+        });
+      });
+  });
+};
+
+export const removeInvite = async ({ token, userId }) => {
+  const url = `${base_url}/friends/set-accept`;
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+  const data = {
+    user_id: userId,
+    is_accept: 2,
+  };
+  return new Promise(async (resolve) => {
+    await axios
+      .post(url, data, config)
+      .then((res) => {
+        console.log(res.data);
         return resolve({
           isSuccess: true,
         });

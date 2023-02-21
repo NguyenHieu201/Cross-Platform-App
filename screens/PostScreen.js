@@ -54,6 +54,7 @@ const PostDetailScreen = ({ navigation, route }) => {
     const pvRoute = routes[routes.length - 2].name;
     navigation.navigate(pvRoute, {
       index: route.params.index,
+      post: updatePost,
     });
     dispatch(
       updatePostAction({
@@ -79,7 +80,7 @@ const PostDetailScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   detailHeader: {
     flexDirection: "row",
-    marginTop:10,
+    marginTop: 10,
   },
   userAvatar: {
     width: 30,
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 24,
-    fontWeight:'bold',
+    fontWeight: "bold",
   },
   postDetail: {
     borderBottomColor: "black",
@@ -122,7 +123,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     height: "100%",
     paddingBottom: 15,
-    backgroundColor:'#ffffff'
+    backgroundColor: "#ffffff",
   },
   commentFooter: {
     flex: 1,

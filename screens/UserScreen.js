@@ -7,7 +7,14 @@ import { TextInput } from "react-native-gesture-handler";
 import { useEffect, useLayoutEffect, useState } from "react";
 // import { getFriendStatus } from "../api/firendApi";
 import { useSelector } from "react-redux";
-import { getFriendStatus, acceptInviteAPI } from "../api/firendApi";
+import {
+  getFriendStatus,
+  acceptInviteAPI,
+  sendInvite,
+  denyInvite,
+  removeInvite,
+  removeFriend,
+} from "../api/firendApi";
 import {
   getAllChatWithFriendId,
   getAllMessageWithChatId,
@@ -24,50 +31,33 @@ const UserDetailScreen = ({ navigation, route }) => {
   const [posts, setPosts] = useState([]);
   const user = route.params.user;
 
-  // useEffect(() => {
-  //   getFriendStatus({ token: token, userId: user?._id }).then((res) => {
-  //     const userStatus = res.data;
-  //     switch (userStatus) {
-  //       case "received":
-  //         setStatus("Accept");
-  //         break;
-  //       case "friend":
-  //         setStatus("Friend");
-  //         break;
-  //     }
-  //     console.log(userStatus);
-  //   });
-
-  //   showUserAPI({ token: token, userId: user?._id }).then((res) => {
-  //     if (res.isSuccess) {
-  //       setPosts(res.posts);
-  //     } else {
-  //       console.log("Fetch post failed");
-  //     }
-  //   });
-  // }, []);
-
   useLayoutEffect(() => {
-    getFriendStatus({ token: token, userId: user?._id }).then((res) => {
+    getFriendStatus({ token: token, userId: user?._id }).then(async (res) => {
       const userStatus = res.data;
       switch (userStatus) {
         case "received":
           setStatus("Accept");
           break;
         case "friend":
-          setStatus("Friend");
+          setStatus("Delete Friend");
+          break;
+        case "sent":
+          setStatus("Cancel invite");
+          break;
+        case "not friend":
+          setStatus("Send Invite");
           break;
       }
-      console.log(userStatus);
+      // console.log(userStatus);
     });
 
-    showUserAPI({ token: token, userId: user?._id }).then((res) => {
-      if (res.isSuccess) {
-        setPosts(res.posts);
-      } else {
-        console.log("Fetch post failed");
-      }
-    });
+    // showUserAPI({ token: token, userId: user?._id }).then((res) => {
+    //   if (res.isSuccess) {
+    //     setPosts(res.posts);
+    //   } else {
+    //     console.log("Fetch post failed");
+    //   }
+    // });
     getUserPostAPI({ token: token, userId: user?._id }).then((res) => {
       if (res.isSuccess) {
         setPosts(res.posts);
@@ -77,25 +67,33 @@ const UserDetailScreen = ({ navigation, route }) => {
     });
   }, []);
 
-  useEffect(() => {
-    console.log(route.user);
-  }, [route]);
-
   const goBack = () => {
-    navigation.goBack();
+    const routes = navigation.getState()?.routes;
+    const pvRoute = routes[routes.length - 2].name;
+    if (pvRoute == "FriendScreen") {
+      navigation.navigate(pvRoute, {
+        userId: user?._id,
+        status: friendStatus,
+      });
+    } else {
+      navigation.navigate(pvRoute);
+    }
   };
 
   const SearchBar = () => {
     const [searchInfo, setSearchInfo] = useState(user?.username);
+    const onSearchPress = () => {
+      navigation.navigate("SearchScreen", {
+        searchKey: searchInfo,
+      });
+    };
     return (
       <View style={styles.searchBar}>
         <TextInput
           placeholder="Search on Fabo"
           value={searchInfo}
           onChangeText={(text) => setSearchInfo(text)}
-          onSubmitEditing={() => {
-            console.log("Search");
-          }}
+          onSubmitEditing={onSearchPress}
         />
       </View>
     );
@@ -109,23 +107,49 @@ const UserDetailScreen = ({ navigation, route }) => {
         : require("../assets/user.png");
     const username = user?.username;
     const addFriend = async () => {
-      console.log("Add friend");
       const data = {
         token: token,
         userId: user?._id,
       };
-      await acceptInviteAPI(data).then((res) => {
+      let friendAPI = null;
+      let nextStatus = "";
+      switch (friendStatus) {
+        case "Send Invite":
+          friendAPI = sendInvite;
+          nextStatus = "Cancel invite";
+          break;
+        case "Accept":
+          friendAPI = acceptInviteAPI;
+          nextStatus = "Delete Friend";
+          break;
+        case "Cancel invite":
+          friendAPI = denyInvite;
+          nextStatus = "Send Invite";
+          break;
+        case "Delete Friend":
+          friendAPI = removeFriend;
+          nextStatus = "Send Invite";
+          break;
+      }
+      await friendAPI(data).then((res) => {
         if (res.isSuccess) {
-          console.log("Accept invite Successfully");
-          setStatus("Friend");
+          setStatus(nextStatus);
         } else {
           console.log("Accept invite Failed");
         }
       });
     };
 
-    const blockUser = () => {
-      console.log("Block User");
+    const denyFriendInvite = async () => {
+      const data = {
+        token: token,
+        userId: user?._id,
+      };
+      await removeInvite(data).then((res) => {
+        if (res.isSuccess) {
+          setStatus("Send Invite");
+        }
+      });
     };
 
     const createMessageRoom = async () => {
@@ -155,12 +179,21 @@ const UserDetailScreen = ({ navigation, route }) => {
             <Text style={styles.userOption}>{friendStatus}</Text>
           </TouchableOpacity>
 
-          {friendStatus == "Friend" && (
+          {friendStatus == "Delete Friend" && (
             <TouchableOpacity
               style={styles.userOptionBlock}
               onPress={createMessageRoom}
             >
               <Text style={styles.userOption}>Message</Text>
+            </TouchableOpacity>
+          )}
+
+          {friendStatus == "Accept" && (
+            <TouchableOpacity
+              style={styles.userOptionBlock}
+              onPress={denyFriendInvite}
+            >
+              <Text style={styles.userOption}>Deny</Text>
             </TouchableOpacity>
           )}
 
@@ -199,6 +232,7 @@ const UserDetailScreen = ({ navigation, route }) => {
               postData={item.item}
               navigation={navigation}
               index={item.index}
+              route={route}
             />
           );
         }}

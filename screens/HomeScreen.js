@@ -12,7 +12,7 @@ import { updatePostAction } from "../redux/actions/postActions";
 const HomeHeader = memo(({ navigation }) => {
   return (
     <View style={{ backgroundColor: "#fff" }}>
-      <Header />
+      <Header navigation={navigation} />
       <NavbarTab navigation={navigation} />
     </View>
   );
@@ -31,7 +31,12 @@ const HomeScreen = ({ navigation, route }) => {
         data={posts}
         renderItem={(item) => {
           return (
-            <Post navigation={navigation} index={item.index} route={route} />
+            <Post
+              navigation={navigation}
+              index={item.index}
+              route={route}
+              postData={item.item}
+            />
           );
         }}
         key={(item) => item.index}

@@ -4,6 +4,8 @@ import { useSelector } from "react-redux";
 import { showMeAPI, showUserAPI } from "../../api/userApi";
 import { fileApi } from "../../api/fileApi";
 
+const defaultAvatar = require("../../assets/user.png");
+
 const PostOption = ({ navigation }) => {
   const token = useSelector((store) => store?.token);
   const avatar = useSelector((store) => store?.avatar);

@@ -69,6 +69,7 @@ export const showUserAPI = async ({ token, userId }) => {
         // console.log(res.data);
         return resolve({
           isSuccess: true,
+          // posts: res.data
         });
       })
       .catch((err) => {
@@ -140,4 +141,64 @@ export const searchAPI = async ({ token }) => {
     .catch((err) => {
       console.log(err.response);
     });
+};
+
+export const RegisterAPI = ({ username, phonenumber, password }) => {
+  const url = `${base_url}/users/register`;
+  const data = {
+    username: username,
+    phonenumber: phonenumber,
+    password: password,
+  };
+
+  return new Promise(async (resolve) => {
+    await axios
+      .post(url, data)
+      .then((res) => {
+        return resolve({
+          isSuccess: true,
+          data: res.data,
+        });
+      })
+      .catch((err) => {
+        // console.log(err.response);
+        return resolve({
+          isSuccess: false,
+          message: err.response.message,
+        });
+      });
+  });
+};
+
+export const ChangePasswordAPI = async ({
+  token,
+  currentPassword,
+  newPassword,
+}) => {
+  const url = `${base_url}/users/change-password`;
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+  const data = {
+    currentPassword: currentPassword,
+    newPassword: newPassword,
+  };
+
+  return new Promise(async (resolve) => {
+    await axios
+      .post(url, data, config)
+      .then((res) => {
+        console.log(res.data);
+        return resolve({
+          isSuccess: true,
+        });
+      })
+      .catch((err) => {
+        // console.log(err.response);
+        return resolve({
+          isSuccess: false,
+          message: err.response.data.message,
+        });
+      });
+  });
 };

@@ -8,7 +8,7 @@ import { getChatApi } from "../api/chatApi";
 import NavbarTab from "../components/Home/NavbarTab";
 import Messages from "../components/Messages/Messages";
 
-const MessagesScreen = ({ navigation }) => {
+const MessagesScreen = ({ navigation, route }) => {
   const [rooms, setRooms] = useState([]);
   const token = useSelector((store) => store?.token);
 
@@ -22,10 +22,15 @@ const MessagesScreen = ({ navigation }) => {
       }
     });
   }, []);
+
+  // useEffect(() => {
+  //   console.log(route.params);
+  // }, [route.params]);
+
   return (
     <SafeAreaView style={{ backgroundColor: "#fff" }}>
       <NavbarTab navigation={navigation} />
-      <Messages rooms={rooms} navigation={navigation} />
+      <Messages rooms={rooms} navigation={navigation} route={route} />
     </SafeAreaView>
   );
 };

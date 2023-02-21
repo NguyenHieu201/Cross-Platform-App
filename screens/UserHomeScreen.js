@@ -13,7 +13,7 @@ import { getUserPostAPI } from "../api/postApi";
 import { fileApi } from "../api/fileApi";
 
 const MeDetailScreen = ({ navigation, route }) => {
-  const user = route.params.user;
+  const user = useSelector((store) => store);
   const token = useSelector((store) => store?.token);
   const [posts, setPosts] = useState([]);
 
@@ -102,6 +102,7 @@ const MeDetailScreen = ({ navigation, route }) => {
               postData={item.item}
               navigation={navigation}
               index={item.index}
+              route={route}
             />
           );
         }}

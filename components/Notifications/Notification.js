@@ -1,27 +1,26 @@
-import React from "react";
+import React, { useLayoutEffect, useState } from "react";
 import { View, Text, Pressable, Image } from "react-native";
+import { useSelector } from "react-redux";
+import { getListNotification } from "../../api/notificationApi";
+import { fileApi } from "../../api/fileApi";
 import { USERS } from "../../Data/Users";
 
 const Notification = () => {
+  const token = useSelector((store) => store?.token);
+  const [notifications, setNotification] = useState([]);
+
+  useLayoutEffect(() => {
+    getListNotification({ token: token }).then((res) => {
+      if (res.isSuccess) {
+        setNotification(res.data);
+      }
+    });
+  }, []);
+
   return (
     <View>
       <View style={{ marginHorizontal: 10, marginVertical: 10, paddingTop: 7 }}>
-        {/* <Pressable titleSize={18}>
-                <Text style={{
-                    fontWeight:"900",
-                    fontSize:18,
-                    color:"#1A6ED8",
-                    height:40,
-                    width:"90%",
-                    backgroundColor:"#D8DADF",
-                    marginHorizontal:10,
-                    marginVertical:10,
-                    paddingTop:7,
-                    textAlign:"center"
-                }}>Mark All as Read</Text>
-            </Pressable> */}
-
-        {USERS.map((post, index) => (
+        {notifications.map((post, index) => (
           <View
             key={index}
             style={{
@@ -32,7 +31,11 @@ const Notification = () => {
             }}
           >
             <Image
-              source={{ uri: post.profile_img }}
+              source={
+                post.source.avatar !== null
+                  ? { uri: fileApi({ filename: post.source.avatar.fileName }) }
+                  : require("../../assets/user.png")
+              }
               style={{
                 width: 30,
                 height: 30,
@@ -53,14 +56,14 @@ const Notification = () => {
                   lineBreakMode={true}
                 >
                   {"  "}
-                  {post.name}
+                  {post.source.username}
                 </Text>
                 <Text style={{ fontSize: 17 }}>
                   {"  "}
-                  {post.Notification}
+                  {post.described}
                 </Text>
               </View>
-              <Text> {post.time}</Text>
+              {/* <Text> {post.time}</Text> */}
             </View>
           </View>
         ))}

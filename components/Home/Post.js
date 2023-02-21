@@ -16,13 +16,17 @@ import PostImage from "../Post/PostImage";
 
 const defaultAvatar = require("../../assets/user.png");
 
-const Post = ({ navigation, index, route }) => {
-  const [post, setPost] = useState(useSelector((store) => store?.posts[index]));
+const Post = ({ postData, navigation, index, route }) => {
+  const [post, setPost] = useState(postData);
   const token = useSelector((store) => {
     return store?.token;
   });
   const avatar = useSelector((store) => store?.avatar);
   const id = useSelector((store) => store?.id);
+
+  useEffect(() => {
+    if (route.params?.post) setPost(route.params.post);
+  }, [route.params]);
 
   const PostLikes = () => {
     const [isLike, setLike] = useState(post.isLike);
@@ -140,7 +144,7 @@ const Post = ({ navigation, index, route }) => {
               marginLeft: 5,
             }}
           >
-            <FontAwesome name="send" size={20} color='#505050'/>
+            <FontAwesome name="send" size={20} color="#505050" />
           </TouchableOpacity>
         </View>
       </View>
@@ -177,7 +181,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingBottom: 10,
     backgroundColor: "#fff",
-    borderBottomColor:"#f0f0f0",
+    borderBottomColor: "#f0f0f0",
     borderBottomWidth: 10,
   },
   postHeader: {

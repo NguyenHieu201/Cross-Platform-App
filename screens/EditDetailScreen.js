@@ -4,9 +4,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { TextInput, TouchableOpacity } from "react-native-gesture-handler";
 import { MaterialIcons, Ionicons, AntDesign } from "@expo/vector-icons";
 import { Image } from "react-native";
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
-import { editUserDetailAPI } from "../api/userApi";
+import { editUserDetailAPI, showMeAPI } from "../api/userApi";
 import { convertBase64 } from "../utils/convertBase64";
 import { useSelector } from "react-redux";
 import { fileApi } from "../api/fileApi";
@@ -27,7 +27,7 @@ const Header = ({ goBack }) => {
 const AvatarEdit = ({ avatar, token }) => {
   const imageSource =
     avatar != null
-      ? { uri: fileApi(avatar?.filename) }
+      ? { uri: fileApi({ filename: avatar?.fileName }) }
       : require("../assets/user.png");
   const [avatarCurr, setAvatar] = useState(imageSource);
 
@@ -188,7 +188,12 @@ const EditDetailScreen = ({ navigation, route }) => {
       refresh: true,
     });
   };
-  console.log(user);
+  // console.log(user);
+  // useLayoutEffect(() => {
+  //   showMeAPI({ token: token }).then((res) => {
+  //     console.log(res);
+  //   });
+  // }, []);
   return (
     <SafeAreaView>
       <Header goBack={goBack} />

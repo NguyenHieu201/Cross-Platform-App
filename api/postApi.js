@@ -19,6 +19,7 @@ export const createPostAPI = async ({ described, images, token }) => {
       .then((res) => {
         return resolve({
           isSuccess: true,
+          post: res.data.data,
         });
       })
       .catch((err) => {
@@ -131,7 +132,7 @@ export const getUserPostAPI = async ({ token, userId }) => {
     await axios
       .get(url, config)
       .then((res) => {
-        // console.log(res.data);
+        console.log(res.data);
         return resolve({
           isSuccess: true,
           posts: res.data.data,
@@ -156,7 +157,7 @@ export const editPostAPI = async ({ token, postId, body }) => {
     await axios
       .post(url, data, config)
       .then((res) => {
-        console.log(res.data);
+        // console.log(res.data);
         return resolve({
           isSuccess: true,
         });

@@ -16,3 +16,9 @@ export const getListPostAction = ({ posts }) => {
     },
   };
 };
+
+export const logoutAction = () => {
+  return {
+    type: "LOGOUT",
+  };
+};
